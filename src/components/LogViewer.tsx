@@ -46,6 +46,7 @@ const LogViewer = () => {
     const stored = localStorage.getItem('favoriteLogGroups');
     return stored ? JSON.parse(stored) : [];
   });
+  const [logSearchTerm, setLogSearchTerm] = useState('');
 
   const fetchLogGroups = async () => {
     try {
@@ -147,11 +148,18 @@ const LogViewer = () => {
     );
   };
 
+  // Filter logs based on logSearchTerm
+  const displayedLogs = useMemo(() => {
+    if (!logSearchTerm) return filteredLogs;
+    const lower = logSearchTerm.toLowerCase();
+    return filteredLogs.filter(log => (log.message || '').toLowerCase().includes(lower));
+  }, [filteredLogs, logSearchTerm]);
+
   return (
     <Container 
       sx={{ 
         py: 4,
-        maxWidth: '1200px !important',
+        maxWidth: '1500px !important',
         width: '100%',
         mx: 'auto',
         px: { xs: 2, sm: 3, md: 4 },
@@ -161,7 +169,7 @@ const LogViewer = () => {
       }}
     >
       {/* Sidebar for favorites */}
-      <Box sx={{ minWidth: 220, maxWidth: 260, pr: 2 }}>
+      <Box sx={{ minWidth: 220, maxWidth: 300, pr: 1 }}>
         <Card sx={{ mb: 3, borderRadius: 3 }}>
           <CardContent sx={{ p: 2 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
@@ -201,10 +209,10 @@ const LogViewer = () => {
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Box 
           sx={{ 
-            mb: 6,
+            mb: 1,
             background: 'linear-gradient(135deg, #4F46E5 0%, #EC4899 100%)',
             borderRadius: 3,
-            p: 4,
+            p: 2,
             color: 'white',
             position: 'relative',
             overflow: 'hidden',
@@ -269,7 +277,7 @@ const LogViewer = () => {
           </ButtonGroup>
         </Box>
 
-        <Card sx={{ mb: 3, borderRadius: 3, overflow: 'visible' }}>
+        <Card sx={{ mb: 1, borderRadius: 3, overflow: 'visible' }}>
           <CardContent sx={{ p: 3 }}>
             <FormControl fullWidth>
               <InputLabel>Select Log Group</InputLabel>
@@ -446,6 +454,46 @@ const LogViewer = () => {
                 </IconButton>
               </Tooltip>
             </Box>
+            {/* Log search field */}
+            <Box sx={{ mb: 2 }}>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Search logs..."
+                value={logSearchTerm}
+                onChange={e => setLogSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: 'primary.main' }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: logSearchTerm && (
+                    <InputAdornment position="end">
+                      <IconButton size="small" onClick={() => setLogSearchTerm('')}>
+                        <ClearIcon fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                  sx: {
+                    borderRadius: 2,
+                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.04),
+                    '&:hover': {
+                      bgcolor: (theme) => alpha(theme.palette.primary.main, 0.06),
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'transparent',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                  },
+                }}
+              />
+            </Box>
 
             {error && (
               <Box sx={{ 
@@ -472,7 +520,7 @@ const LogViewer = () => {
               borderRadius: 2,
               p: 0,
             }}>
-              {filteredLogs.map((log, index) => {
+              {displayedLogs.map((log, index) => {
                 const logInfo = getLogLevelInfo(log.message || '');
                 return (
                   <ListItem 
@@ -530,9 +578,9 @@ const LogViewer = () => {
                               }),
                             }}
                             dangerouslySetInnerHTML={{
-                              __html: searchTerm
+                              __html: logSearchTerm
                                 ? (log.message || '').replace(
-                                    new RegExp(searchTerm, 'gi'),
+                                    new RegExp(logSearchTerm, 'gi'),
                                     (match) => `<mark>${match}</mark>`
                                   )
                                 : log.message || '',
@@ -556,7 +604,7 @@ const LogViewer = () => {
                   </ListItem>
                 );
               })}
-              {filteredLogs.length === 0 && !loading && (
+              {displayedLogs.length === 0 && !loading && (
                 <ListItem>
                   <ListItemText 
                     primary={
@@ -567,7 +615,7 @@ const LogViewer = () => {
                           py: 8,
                         }}
                       >
-                        {searchTerm ? 'No matching logs found' : 'No logs found'}
+                        {logSearchTerm ? 'No matching logs found' : 'No logs found'}
                       </Typography>
                     }
                   />
