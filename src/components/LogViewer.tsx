@@ -39,6 +39,7 @@ const LogViewer = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [prefix, setPrefix] = useState<string | undefined>('/ecs');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [timeRange, setTimeRange] = useState(10 * 60 * 1000); // default 10 min
 
   const fetchLogGroups = async () => {
     try {
@@ -62,7 +63,7 @@ const LogViewer = () => {
     try {
       setLoading(true);
       setError(null);
-      const logEvents = await getRecentLogs(selectedGroup);
+      const logEvents = await getRecentLogs(selectedGroup, Date.now() - timeRange);
       setLogs(logEvents);
       setFilteredLogs(logEvents);
     } catch (err) {
@@ -323,6 +324,14 @@ const LogViewer = () => {
               {prefix && ` • Filtered by prefix: ${prefix}`}
             </Typography>
           </FormControl>
+          <Box sx={{ mt: 2, mb: 1, display: 'flex', justifyContent: 'flex-start' }}>
+            <ButtonGroup size="small" variant="outlined">
+              <Button onClick={() => setTimeRange(1 * 60 * 1000)} variant={timeRange === 1 * 60 * 1000 ? 'contained' : 'outlined'}>1 min</Button>
+              <Button onClick={() => setTimeRange(10 * 60 * 1000)} variant={timeRange === 10 * 60 * 1000 ? 'contained' : 'outlined'}>10 min</Button>
+              <Button onClick={() => setTimeRange(15 * 60 * 1000)} variant={timeRange === 15 * 60 * 1000 ? 'contained' : 'outlined'}>15 min</Button>
+              <Button onClick={() => setTimeRange(60 * 60 * 1000)} variant={timeRange === 60 * 60 * 1000 ? 'contained' : 'outlined'}>1 hour</Button>
+            </ButtonGroup>
+          </Box>
         </CardContent>
       </Card>
 
