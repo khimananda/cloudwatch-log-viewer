@@ -1,54 +1,69 @@
-# React + TypeScript + Vite
+# CloudWatch Logs Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern React + TypeScript + Vite application for viewing AWS CloudWatch logs with a beautiful UI, advanced search, and log level highlighting.
 
-Currently, two official plugins are available:
+## Features
+- View and search AWS CloudWatch log groups and recent logs
+- Integrated search within the log group selector
+- Log level highlighting (INFO, WARN, ERROR, LOG)
+- Modern, responsive UI with Material-UI
+- Supports AWS SSO and temporary credentials
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Setup
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### 1. Clone the repository
+```bash
+git clone <your-repo-url>
+cd log-viewer
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+### 2. Install dependencies
+```bash
+npm install
 ```
+
+### 3. Configure AWS Credentials
+
+#### Option A: AWS SSO (Recommended)
+1. Configure SSO with the AWS CLI:
+   ```bash
+   aws configure sso
+   ```
+2. Set your SSO profile and region in a `.env` file:
+   ```env
+   VITE_AWS_REGION=us-east-1
+   VITE_AWS_PROFILE=your-sso-profile-name
+   ```
+
+#### Option B: Temporary Credentials from AWS Access Portal
+1. Get credentials from your AWS IAM Identity Center (AWS SSO) portal.
+2. Add them to your `.env` file:
+   ```env
+   VITE_AWS_REGION=us-east-1
+   VITE_AWS_ACCESS_KEY_ID=...
+   VITE_AWS_SECRET_ACCESS_KEY=...
+   VITE_AWS_SESSION_TOKEN=...
+   ```
+3. **Note:** These credentials expire after a few hours. Refresh as needed.
+
+### 4. Start the development server
+```bash
+npm run dev
+```
+
+## Usage
+- The dashboard will open in your browser.
+- Use the log group selector to search and select a log group.
+- View and search recent logs with real-time filtering and log level highlighting.
+- Use the ECS/All Logs toggle to filter log groups by prefix.
+
+## Security
+- **Never commit your `.env` file or credentials to version control.**
+- Add `.env` to your `.gitignore`.
+
+## Customization
+- UI is built with Material-UI and can be easily themed or extended.
+- Log level detection and highlighting can be customized in `src/components/LogViewer.tsx`.
+
+## License
+MIT
